@@ -1,0 +1,26 @@
+version: "1"
+services:
+  app:
+    build: .
+    env_file: .env
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES: postgres://user:pass@postgres:5432/db
+      NODE_ENV: development
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    command: npm run start
+    volumes:
+      - .:/app/
+      - /app/node_modules
+    
+  postgres:
+    image: postgres:10.4
+    ports:
+      - "35432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db
