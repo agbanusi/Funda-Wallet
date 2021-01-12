@@ -174,6 +174,7 @@ function models(sq) {
         type: Sequelize.DATE
       }
     })
+    
     User.hasMany(Transactions , {foreignKey: 'userId'})
     
     return {User, Admin, Transactions}
