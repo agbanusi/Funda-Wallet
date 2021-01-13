@@ -78,7 +78,9 @@ function models(sq) {
       allowNull: false,
       type: Sequelize.DATE
     }
-    })
+    }, {
+        freezeTableName: true,
+      })
 
     const Admin = sq.define("admin", {
         id: {
@@ -116,7 +118,9 @@ function models(sq) {
           allowNull: false,
           type: Sequelize.DATE
         }
-    })
+    }, {
+        freezeTableName: true,
+      })
 
     const Transactions = sq.define('transactions', {
         id: {
@@ -173,7 +177,9 @@ function models(sq) {
         allowNull: false,
         type: Sequelize.DATE
       }
-    })
+    }, {
+        freezeTableName: true,
+      })
     
     User.hasMany(Transactions , {foreignKey: 'userId'})
     

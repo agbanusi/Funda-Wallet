@@ -16,8 +16,12 @@ function verifyAdmin(){
     jwt.verify(req.body.token, secret2, function(err, decoded) {
         if (err) return res.status(400).send({ message: 'Failed to authenticate token.' });
         
-        req.isAdmin = true
-        next()
+        if(decoded.isAdmin){
+            req.isAdmin = true
+            next()
+        }else{
+            return res.status(400).send({ message: 'Failed to authenticate token.' });
+        }
     });
 }
 
@@ -27,12 +31,15 @@ module.exports = function routes(app, User, Admin, Transactions){
         res.send("Welcome to Funda Wallet")
     })
 
-    app.post('/register', (req, res)=>{
+    app.post('/register', async(req, res)=>{
         let data = req.body
-        if(data.firstName && data.email && data.currency && data.password){
-            let {firstName, lastName, currency, email, country}  = data
-            bcrypt.hash(data.password, (err, hash)=>{
-                User.create({firstName, lastName, email, country, password:hash, currency,createdAt: new Date(),updatedAt: new Date() }).then(user=>{
+        let {firstName, lastName, currency, email, country, password}  = data
+        await User.sync();
+
+        if(firstName && email && currency && password){ 
+            bcrypt.hash(password, 13, (err, hash)=>{
+                User.create({firstName, lastName, email, country, password:hash, currency,createdAt: new Date(),updatedAt: new Date() })
+                .then((user)=>{
                     var token = jwt.sign({email, password: hash, level: user.level}, secret, {
                         expiresIn: 86400 // expires in 24 hours
                     });
@@ -44,8 +51,10 @@ module.exports = function routes(app, User, Admin, Transactions){
         }
     })
 
-    app.post('/registeradmin', (req, res)=>{
+    app.post('/registeradmin', async (req, res)=>{
         let data = req.body
+        await Admin.sync();
+
         if(data.firstName && data.email && data.password){
             let {firstName, lastName, email, country}  = data
             bcrypt.hash(data.password, (err, hash)=>{
@@ -63,12 +72,17 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/login', async(req,res)=>{
         let {email, password} = req.body
+        await User.sync();
+
         if(email && password){
             let user = await User.findOne({
                 where: {email}
             })
+            
+            user =  user.dataValues
             if(user){
-                let result = bcrypt.compareSync(password, user.password)
+                let result = bcrypt.compareSync(user.password, password)
+                console.log(result)
                 if(result){
                     var token = jwt.sign({email, password, level: user.level}, secret, {
                         expiresIn: 86400 // expires in 24 hours
@@ -87,6 +101,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/loginadmin', async(req,res)=>{
         let {email, password} = req.body
+        await User.sync();
+        await Admin.sync();
+
         if(email && password){
             let user = await Admin.findOne({
                 where: {email}
@@ -94,7 +111,7 @@ module.exports = function routes(app, User, Admin, Transactions){
             if(user){
                 let result = bcrypt.compareSync(password, user.password)
                 if(result){
-                    var token = jwt.sign({email, password, level: user.level}, secret2, {
+                    var token = jwt.sign({email, password, isAdmin:true}, secret2, {
                         expiresIn: 86400 // expires in 24 hours
                     });
                     res.json({"message":"login successful", token})
@@ -111,6 +128,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/fund', verifyAdmin, async(req, res)=>{
         let {amount, currency, name, email, id} = req.body
+        await User.sync();
+        await Transactions.sync();
+
         if(amount, name, currency){
             let user = await User.findOne({
                 where: {email}
@@ -144,6 +164,9 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/credit', verify, async(req,res)=>{
         let {amount, currency, name} = req.body
         let email = req.user.email
+        await User.sync();
+        await Transactions.sync();
+
         if(amount, name, currency){
             let user = await User.findOne({
                 where: {email}
@@ -195,6 +218,9 @@ module.exports = function routes(app, User, Admin, Transactions){
         let {amount, name, email, currency} = req.body
         let mail = req.user.email
         let amount2 = amount
+        await User.sync();
+        await Transactions.sync();
+
         if(amount, name, currency){
             let user = await User.findOne({
                 where: {email:mail}
@@ -251,6 +277,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/sent',verifyAdmin, async(req,res)=>{
         let {id} = req.body
+        await User.sync();
+        await Transactions.sync();
+        
         if(id){
             let trans = await Transactions.findOne({where:{id}})
             if(trans){
@@ -308,6 +337,9 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/debit', verify, async(req,res)=>{
         let {amount, currency} = req.body
         let email = req.user.email
+        await User.sync();
+        await Transactions.sync();
+
         if(email && amount){
             let user = await User.findOne({
                 where: {email}
@@ -359,6 +391,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/withdraw', verifyAdmin, async(req,res)=>{
         let {id} = req.body
+        await User.sync();
+        await Transactions.sync();
+
         if(id){
             let trans = await Transactions.findOne({where:{id}})
             if(trans){
@@ -394,6 +429,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/addcurrency', verify, async(req,res)=>{
         let email = req.user.email
+        await User.sync();
+        await Transactions.sync();
+
         let user = await User.findOne({
             where: {email}
         })
@@ -423,6 +461,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.put('/changelevel', verifyAdmin, async(req,res)=>{
         let {level, email} = req.body
+        await User.sync();
+        await Transactions.sync();
+
         let user = await User.findOne({
             where: {email}
         })
@@ -438,6 +479,9 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.put('/changecurrency', verifyAdmin, async(req,res)=>{
         let {currency, email} = req.body
+        await User.sync();
+        await Transactions.sync();
+
         let user = await User.findOne({
             where: {email}
         })
@@ -453,6 +497,9 @@ module.exports = function routes(app, User, Admin, Transactions){
     
     app.post('/directfund', verifyAdmin, async(req,res)=>{
         let {amount, currency, email} = req.body
+        await User.sync();
+        await Transactions.sync();
+
         if(amount, currency, email){
             let user = await User.findOne({
                 where: {email}

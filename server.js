@@ -13,8 +13,10 @@ app.use(cors());
 
 const sequelize = new Sequelize(process.env.POSTGRES);
 const {User, Admin, Transactions} = models(sequelize)
-routes(app, User, Admin, Transactions)
+sequelize.sync({force: true}).then(()=>{
+    routes(app, User, Admin, Transactions, sequelize)
 
-app.listen(5000, ()=>{
-    console.log("listening on port 5000")
+    app.listen(5000, ()=>{
+        console.log("listening on port 5000")
+    })
 })
