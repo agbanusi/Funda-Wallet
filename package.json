@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
     "build": "node server.js",
-    "gen": "jsdoc server.js"
+    "gen": "jsdoc server.js",
+    "test": "mocha ./tests/noob.test.js & mocha ./tests/admin.test.js"
   },
   "keywords": [],
   "author": "",
@@ -19,12 +19,16 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^2.6.1",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.5"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "jsdoc": "^3.6.6",
+    "mocha": "^8.2.1",
     "nodemon": "^2.0.7"
   }
 }

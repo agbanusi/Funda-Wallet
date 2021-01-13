@@ -2,8 +2,9 @@ const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken');
 const secret = process.env.SECRET
 const secret2 = process.env.SECRETS
+const fetch = require('node-fetch')
 
-function verify(){
+function verify(req, res, next){
     jwt.verify(req.body.token, secret, function(err, decoded) {
         if (err) return res.status(400).send({ message: 'Failed to authenticate token.' });
         
@@ -12,7 +13,7 @@ function verify(){
     });
 }
 
-function verifyAdmin(){
+function verifyAdmin(req, res, next){
     jwt.verify(req.body.token, secret2, function(err, decoded) {
         if (err) return res.status(400).send({ message: 'Failed to authenticate token.' });
         
@@ -125,7 +126,7 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/fund', verifyAdmin, async(req, res)=>{
         let {amount, currency, name, email, id} = req.body
 
-        if(amount && id){
+        if(email && id){
             let user = await User.findOne({
                 where: {email}
             })
@@ -168,8 +169,9 @@ module.exports = function routes(app, User, Admin, Transactions){
             user=user.dataValues
             if(user.level=="Noob"){
                 if(currency !== user.currency){
-                    let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
                     let result = await res.json()
+                    console.log(result)
                     amount = result.info.rate
                 }
             }else{
@@ -177,7 +179,7 @@ module.exports = function routes(app, User, Admin, Transactions){
                     if(user.currency1 && currency !== user.currency1 ){
                         if(user.currency2 && currency !== user.currency2){
                             if(user.currency3 && currency !== user.currency3){
-                                let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                                let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
                                 let result = await res.json()
                                 amount = result.info.rate
                             }else{
@@ -226,7 +228,7 @@ module.exports = function routes(app, User, Admin, Transactions){
 
             if(recipient.level == "Noob"){
                 if(recipient.currency !== user.currency){
-                    let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${user.currency}&to=${recipient.currency}&amount=${amount}`)
+                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${user.currency}&to=${recipient.currency}&amount=${amount}`)
                     let result = await res.json()
                     amount2 = result.info.rate
                 }
@@ -235,7 +237,7 @@ module.exports = function routes(app, User, Admin, Transactions){
                     if(recipient.currency1 && currency !== recipient.currency1 ){
                         if(recipient.currency2 && currency !== recipient.currency2){
                             if(recipient.currency3 && currency !== recipient.currency3){
-                                let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${recipient.currency}&amount=${amount}`)
+                                let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${recipient.currency}&amount=${amount}`)
                                 let result = await res.json()
                                 amount = result.info.rate
                             }else{
@@ -343,7 +345,7 @@ module.exports = function routes(app, User, Admin, Transactions){
             if(user){
                 if(user.level == "Noob"){
                     if(currency && currency !== user.currency){
-                        let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                        let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
                         let result = await res.json()
                         amount = result.info.rate
                     }
@@ -353,7 +355,7 @@ module.exports = function routes(app, User, Admin, Transactions){
                         if(user.currency1 && currency !== user.currency1 ){
                             if(user.currency2 && currency !== user.currency2){
                                 if(user.currency3 && currency !== user.currency3){
-                                    let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
                                     let result = await res.json()
                                     amount = result.info.rate
                                 }else{
@@ -532,7 +534,7 @@ module.exports = function routes(app, User, Admin, Transactions){
             user = user.dataValues
             if(user){
                 if(currency && currency !== user.currency){
-                    let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
                     let result = await res.json()
                     amount = result.info.rate
                 }
