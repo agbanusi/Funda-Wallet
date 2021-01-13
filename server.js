@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const Sequelize = require('sequelize');
 const models = require('./functions/models')
+const routes = require('./functions/routes')
 const cors = require("cors")
 
 app.use(bodyParser.urlencoded({extended:false}))

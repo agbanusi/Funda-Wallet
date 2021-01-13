@@ -21,7 +21,7 @@ function verifyAdmin(){
     });
 }
 
-function routes(app, User, Admin, Transactions){
+module.exports = function routes(app, User, Admin, Transactions){
     
     app.get('/', (req,res)=>{
         res.send("Welcome to Funda Wallet")
@@ -480,4 +480,3 @@ function routes(app, User, Admin, Transactions){
         }
     })
 }
-module.export = routes
