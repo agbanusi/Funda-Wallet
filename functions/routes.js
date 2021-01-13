@@ -34,7 +34,6 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/register', async(req, res)=>{
         let data = req.body
         let {firstName, lastName, currency, email, country, password}  = data
-        await User.sync();
 
         if(firstName && email && currency && password){ 
             bcrypt.hash(password, 13, (err, hash)=>{
@@ -53,7 +52,6 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/registeradmin', async (req, res)=>{
         let data = req.body
-        await Admin.sync();
 
         if(data.firstName && data.email && data.password){
             let {firstName, lastName, email, country}  = data
@@ -72,7 +70,6 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/login', async(req,res)=>{
         let {email, password} = req.body
-        await User.sync();
 
         if(email && password){
             let user = await User.findOne({
@@ -81,8 +78,7 @@ module.exports = function routes(app, User, Admin, Transactions){
             
             user =  user.dataValues
             if(user){
-                let result = bcrypt.compareSync(user.password, password)
-                console.log(result)
+                let result = bcrypt.compareSync(password, user.password)
                 if(result){
                     var token = jwt.sign({email, password, level: user.level}, secret, {
                         expiresIn: 86400 // expires in 24 hours
@@ -101,13 +97,13 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/loginadmin', async(req,res)=>{
         let {email, password} = req.body
-        await User.sync();
-        await Admin.sync();
 
         if(email && password){
             let user = await Admin.findOne({
                 where: {email}
             })
+            
+            user= user.dataValues
             if(user){
                 let result = bcrypt.compareSync(password, user.password)
                 if(result){
@@ -128,14 +124,14 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/fund', verifyAdmin, async(req, res)=>{
         let {amount, currency, name, email, id} = req.body
-        await User.sync();
-        await Transactions.sync();
 
-        if(amount, name, currency){
+        if(amount && id){
             let user = await User.findOne({
                 where: {email}
             })
+            user = user.dataValues
             let trans = await Transactions.findOne({where:{id}})
+            trans = trans.dataValues
             if(user.level == "Noob"){
                 await trans.update({status: "approved", approved:true,updatedAt: new Date() })
                 
@@ -164,13 +160,12 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/credit', verify, async(req,res)=>{
         let {amount, currency, name} = req.body
         let email = req.user.email
-        await User.sync();
-        await Transactions.sync();
 
         if(amount, name, currency){
             let user = await User.findOne({
                 where: {email}
             })
+            user=user.dataValues
             if(user.level=="Noob"){
                 if(currency !== user.currency){
                     let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
@@ -218,16 +213,16 @@ module.exports = function routes(app, User, Admin, Transactions){
         let {amount, name, email, currency} = req.body
         let mail = req.user.email
         let amount2 = amount
-        await User.sync();
-        await Transactions.sync();
 
         if(amount, name, currency){
             let user = await User.findOne({
                 where: {email:mail}
             })
+            user = user.dataValues
             let recipient = await User.findOne({
                 where: {email}
             })
+            recipient = recipient.dataValues
 
             if(recipient.level == "Noob"){
                 if(recipient.currency !== user.currency){
@@ -277,16 +272,17 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/sent',verifyAdmin, async(req,res)=>{
         let {id} = req.body
-        await User.sync();
-        await Transactions.sync();
         
         if(id){
             let trans = await Transactions.findOne({where:{id}})
+            trans = trans.dataValues
             if(trans){
                 if(trans.recipientId){
                     let trans2 = await Transactions.findOne({where:{id: trans.recipientId}})
+                    trans2 = trans2.dataValues
                     await trans2.update({status: "approved", approved:true,updatedAt: new Date() })
                     let user2 = await User.findOne({where:{id: trans2.userId}})
+                    user2 = user2.dataValues
                     if(user2.level == "Noob"){
                         user2.balance += trans2.amount
                         user2.save()
@@ -307,6 +303,7 @@ module.exports = function routes(app, User, Admin, Transactions){
                 
                 await trans.update({status: "approved", approved:true,updatedAt: new Date() })
                 let user1 = await User.findOne({where:{id: trans.userId}})
+                user2 = user2.dataValues
                 if(user1.level == "Noob"){
                     user1.balance -= trans.amount
                     user1.save()
@@ -337,13 +334,12 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/debit', verify, async(req,res)=>{
         let {amount, currency} = req.body
         let email = req.user.email
-        await User.sync();
-        await Transactions.sync();
 
         if(email && amount){
             let user = await User.findOne({
                 where: {email}
             })
+            user = user.dataValues
             if(user){
                 if(user.level == "Noob"){
                     if(currency && currency !== user.currency){
@@ -391,15 +387,15 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/withdraw', verifyAdmin, async(req,res)=>{
         let {id} = req.body
-        await User.sync();
-        await Transactions.sync();
 
         if(id){
             let trans = await Transactions.findOne({where:{id}})
+            trans = trans.dataValues
             if(trans){
                 
                 await trans.update({status: "approved", approved:true,updatedAt: new Date() })
                 let user1 = await User.findOne({where:{id: trans.userId}})
+                user1 = user1.dataValues
                 if(user1.level =="Noob"){
                     user1.balance -= trans.amount
                     user1.save()
@@ -429,12 +425,11 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.post('/addcurrency', verify, async(req,res)=>{
         let email = req.user.email
-        await User.sync();
-        await Transactions.sync();
 
         let user = await User.findOne({
             where: {email}
         })
+        user = user.dataValues
         if(req.user.level !== "Noob"){
             if(!user.currency1){
                 user.currency1 = req.body.currency
@@ -461,13 +456,11 @@ module.exports = function routes(app, User, Admin, Transactions){
 
     app.put('/changelevel', verifyAdmin, async(req,res)=>{
         let {level, email} = req.body
-        await User.sync();
-        await Transactions.sync();
 
         let user = await User.findOne({
             where: {email}
         })
-        
+        user = user.dataValues
         if(user){
             user.level = level
             user.save()
@@ -476,16 +469,50 @@ module.exports = function routes(app, User, Admin, Transactions){
             res.status(400).send({ message: 'Invalid user' })
         }
     })
+    app.post('/listtransactions/pending', verifyAdmin, async(req,res)=>{
+
+        let user = await Transactions.findAll({
+            where: {approved:false}
+        })
+        user = user.dataValues
+        if(user){
+            res.status(200).send({ data: user.map(i=>i.dataValues)})
+        }else{
+            res.status(400).send({ message: 'Invalid user' })
+        }
+    })
+
+    app.post('/listtransactions/all', verifyAdmin, async(req,res)=>{
+
+        let user = await Transactions.findAll()
+        user = user.dataValues
+        if(user){
+            res.status(200).send({ data: user.map(i=>i.dataValues)})
+        }else{
+            res.status(400).send({ message: 'Invalid user' })
+        }
+    })
+
+    app.post('/listtransactions/verified', verifyAdmin, async(req,res)=>{
+
+        let user = await Transactions.findAll({
+            where: {approved:true}
+        })
+        user = user.dataValues
+        if(user){
+            res.status(200).send({ data: user.map(i=>i.dataValues)})
+        }else{
+            res.status(400).send({ message: 'Invalid user' })
+        }
+    })
 
     app.put('/changecurrency', verifyAdmin, async(req,res)=>{
         let {currency, email} = req.body
-        await User.sync();
-        await Transactions.sync();
 
         let user = await User.findOne({
             where: {email}
         })
-        
+        user = user.dataValues
         if(user){
             user.currency = currency
             user.save()
@@ -497,14 +524,12 @@ module.exports = function routes(app, User, Admin, Transactions){
     
     app.post('/directfund', verifyAdmin, async(req,res)=>{
         let {amount, currency, email} = req.body
-        await User.sync();
-        await Transactions.sync();
 
         if(amount, currency, email){
             let user = await User.findOne({
                 where: {email}
             })
-    
+            user = user.dataValues
             if(user){
                 if(currency && currency !== user.currency){
                     let res = await fetch(`https://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
