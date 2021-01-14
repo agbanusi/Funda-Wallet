@@ -6,7 +6,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: use node v10
-        uses: actions/setup-node@v10
+        uses: actions/setup-node@v1
         with: 
           node-version: 10.x
       - name: install
