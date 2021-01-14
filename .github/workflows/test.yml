@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: 14.x
       - name: install
-        run: npm ci
+        run: npm install
         env:
           POSTGRES: postgres://user:postgres@postgres:5432/db
           POSTGRES_PORT: 5432
