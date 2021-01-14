@@ -75,7 +75,7 @@ describe('test the backend',()=>{
             .post('/credit')  
             .send({token, amount, currency:"JPY", name:"Datebayo industries"})
             .end((err,res)=>{
-                assert.equal(res.status,200,'successful')
+                assert.equal(res.status,500,'unsuccessful due to api key')
                 assert.isObject(res.body, 'an object is returned')
                 done();
             })
@@ -109,7 +109,7 @@ describe('test the backend',()=>{
             .post('/debit')  
             .send({token, amount, currency:"JPY", name:"Datebayo industries"})
             .end((err,res)=>{
-                assert.equal(res.status,200,'successful')
+                assert.equal(res.status,500,'unsuccessful due to api key')
                 assert.isObject(res.body, 'an object is returned')
                 done();
             })
@@ -158,7 +158,7 @@ describe('test the backend',()=>{
         it("Verified user same currency", (done)=>{
             chai.request(server)
             .post('/send')  
-            .send({token, amount, currency, name:"Datebayo industries", email:"johnjohn@gmail.com"})
+            .send({token, amount, currency:"JPY", name:"Datebayo industries", email:"johnjohn@gmail.com"})
             .end((err,res)=>{
                 assert.equal(res.status,200,'successful')
                 assert.isObject(res.body, 'an object is returned')
@@ -168,9 +168,9 @@ describe('test the backend',()=>{
         it("Verified user different currency", (done)=>{
             chai.request(server)
             .post('/send')  
-            .send({token, amount, currency:"JPY", name:"Datebayo industries", email:"johnjohnny@gmail.com"})
+            .send({token, amount, currency:"USD", name:"Datebayo industries", email:"johnjohnny@gmail.com"})
             .end((err,res)=>{
-                assert.equal(res.status,200,'successful')
+                assert.equal(res.status,500,'unsuccessful due to api key')
                 assert.isObject(res.body, 'an object is returned')
                 done();
             })

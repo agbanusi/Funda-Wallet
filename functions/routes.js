@@ -228,18 +228,23 @@ module.exports = function routes(app, User, Admin, Transactions){
                 where: {email}
             })
             recipient = recipient.dataValues
+            console.log(recipient.currency, user.currency)
 
             if(recipient.level == "Noob"){
-                if(recipient.currency !== user.currency){
+                if(recipient.currency != user.currency){
                     let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${user.currency}&to=${recipient.currency}&amount=${amount}`)
                     let result = await red.json()
+                    if(!result.info){
+                        res.status(500).json({message: "An error occured in currency conversion "})
+                        return
+                    }
                     amount2 = result.info.rate
                 }
             }else{
                 if(currency !== recipient.currency){
-                    if(recipient.currency1 && currency !== recipient.currency1 ){
-                        if(recipient.currency2 && currency !== recipient.currency2){
-                            if(recipient.currency3 && currency !== recipient.currency3){
+                    if(recipient.currency1 && currency != recipient.currency1 ){
+                        if(recipient.currency2 && currency != recipient.currency2){
+                            if(recipient.currency3 && currency != recipient.currency3){
                                 let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${recipient.currency}&amount=${amount}`)
                                 let result = await red.json()
                                 if(!result.info){
@@ -269,12 +274,12 @@ module.exports = function routes(app, User, Admin, Transactions){
     
             Transactions.create({userId: user.id, recipientId: recipient.id, amount, credit:false, currency:user.currency, name,
                 createdAt: new Date(),updatedAt: new Date(), status: "pending", type:"send" }).then(trans=>{
-                    res.json({message: "Transaction successfully pending for approval", amount, username: user.firstName, sender: name, id:trans.id})
+                    Transactions.create({userId: recipient.id, amount:amount2, credit:true, currency:currency, name,
+                        createdAt: new Date(),updatedAt: new Date(), status: "pending", type:"receive" }).then(transe=>{
+                            res.json({message: "Transaction successfully pending for approval", amount, username: user.firstName, sender: name, id:trans.id})
+                    })
             })
-            Transactions.create({userId: recipient.id, amount:amount2, credit:true, currency:currency, name,
-                createdAt: new Date(),updatedAt: new Date(), status: "pending", type:"receive" }).then(trans=>{
-                    res.json({message: "Transaction successfully pending for approval", amount, username: user.firstName, sender: name, id:trans.id})
-            })
+            
         }else{
             res.status(400).send({ message: 'One or more missing inputs' })
         }
@@ -345,14 +350,14 @@ module.exports = function routes(app, User, Admin, Transactions){
         let {amount, currency} = req.body
         let email = req.user.email
 
-        if(email && amount){
+        if(email && amount&& currency){
             let user = await User.findOne({
                 where: {email}
             })
             user = user.dataValues
             if(user){
                 if(user.level == "Noob"){
-                    if(currency && currency !== user.currency){
+                    if(currency !== user.currency){
                         let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
                         let result = await red.json()
                         if(!result.info){

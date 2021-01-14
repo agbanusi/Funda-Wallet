@@ -32,13 +32,11 @@ jobs:
       - name: use checkout 
         uses: actions/checkout@v2
       - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: 14.x
       - name: install
-        run: npm install
-      - name: start the server
-        run: npm run build
+        run: npm ci
         env:
           POSTGRES: postgres://user:postgres@postgres:5432/db
           POSTGRES_PORT: 5432
@@ -46,6 +44,6 @@ jobs:
           NODE_ENV: production
           SECRET: HUBHUBHUB
           SECRETS: HUPHUTHYUTTYUN
-          API: 28965cf068f3c6098d00fff87fe38b40
-      - name: start test
+          API: 28965cf068f3c6098d00fff87fe38b40       
+      - name: start and test the server
         run: npm run test
