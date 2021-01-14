@@ -38,10 +38,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - uses: bagbyte/use-private-action@v0.0.2
-              with:
-                  private-action: 
-                  private-action-token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
       - name: install
         run: npm ci
       - name: connect to database and start the server
