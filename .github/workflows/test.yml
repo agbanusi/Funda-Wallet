@@ -1,35 +1,36 @@
 name: test-integration
 on: [push]
-jobs: 
+jobs:
+  # Label of the container job
+  container-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: node:10.18-jessie
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: user
+          POSTGRES_HOST: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: db
+          POSTGRES_PORT: 5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Label of the container job
-    container-job:
-      # Containers must run in Linux based operating systems
-      runs-on: ubuntu-latest
-      # Docker Hub image that `container-job` executes in
-      container: node:10.18-jessie
 
-      # Service containers to run with `container-job`
-      services:
-        # Label used to access the service container
-        postgres:
-          # Docker Hub image
-          image: postgres
-          # Provide the password for postgres
-          env:
-            POSTGRES_USER: user
-            POSTGRES_HOST: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: db
-            POSTGRES_PORT: 5432
-          # Set health checks to wait until postgres has started
-          options: >-
-            --health-cmd pg_isready
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
     steps:
       - name: use node v12
         uses: actions/checkout@v2
@@ -37,6 +38,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - uses: bagbyte/use-private-action@v0.0.2
+              with:
+                  private-action: 
+                  private-action-token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
       - name: install
         run: npm ci
       - name: connect to database and start the server
