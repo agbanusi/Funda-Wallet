@@ -11,15 +11,15 @@ app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 app.use(cors());
 
-const sequelize = new Sequelize(process.env.POSTGRES);
+const sequelize = new Sequelize(process.env.POSTGRES, {logging:false});
 const {User, Admin, Transactions} = models(sequelize)
-sequelize.sync({force: process.env.NODE_ENV=='development'?false:true}).then(()=>{
-    routes(app, User, Admin, Transactions, sequelize)
+sequelize.sync()  ///process.env.NODE_ENV=='production'?true:false
 
-    app.listen(5000, ()=>{
-        console.log("listening on port 5000")
-    })
+routes(app, User, Admin, Transactions, sequelize)
 
+app.listen(5000, ()=>{
+    console.log("listening on port 5000")
 })
 
+setTimeout(()=>{}, 5000)
 module.exports = app

@@ -182,6 +182,7 @@ function models(sq) {
       })
     
     User.hasMany(Transactions , {foreignKey: 'userId'})
+    //sq.sync({force: process.env.NODE_ENV=='development'?false:true})
     
     return {User, Admin, Transactions}
 }

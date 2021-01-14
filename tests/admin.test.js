@@ -1,11 +1,10 @@
-process.env.NODE_ENV='development'
-let server = "http://localhost:5000"
+let server =require('../server.js')
 //dev dependencies
 let chai = require('chai')
 let chaiHttp = require("chai-http")
 let assert = chai.assert
 chai.use(chaiHttp)
-let firstName="admin", lastName="admin", email="admin@gmail.com", country="USA", password = '01234Admin'
+let firstName="admin", lastName="admin", email="admin@gmail.com", country="USA", password = '01234Admin', amount= 50, currency="USD"
 let usermail = "johnagbanusi@gmail.com"
 let token, id, id1, id2
 
@@ -14,7 +13,7 @@ describe('test the backend',()=>{
         it('register admin full details', (done)=>{
             chai.request(server)
             .post('/registeradmin')  
-            .send({firstNname, lastName, country, email, password})
+            .send({firstName, lastName, country, email, password})
             .end((err,res)=>{
                 assert.equal(res.status,200,'successful')
                 assert.isObject(res.body, 'an object is returned')
@@ -74,7 +73,7 @@ describe('test the backend',()=>{
         it("Unverified admin", (done)=>{
             chai.request(server)
             .post('/listtransactions/all')  
-            .send({token})
+            .send()
             .end((err,res)=>{
                 assert.equal(res.status,400,'successful')
                 assert.isObject(res.body, 'an object is returned')
@@ -90,16 +89,16 @@ describe('test the backend',()=>{
             .end((err,res)=>{
                 assert.equal(res.status,200,'successful')
                 assert.isObject(res.body, 'an object is returned')
-                id = (res.body.data.filter(i=>i.credit==true)[0]).id
                 id1 = (res.body.data.filter(i=>i.credit==false)[0]).id
                 id2 = (res.body.data.filter(i=>i.credit==false)[1]).id
+                id = (res.body.data.filter(i=>i.credit==true)[0]).id
                 done();
             })
         })
         it("Unverified admin", (done)=>{
             chai.request(server)
-            .post('/listtransactions/pening')  
-            .send({token})
+            .post('/listtransactions/pending')  
+            .send()
             .end((err,res)=>{
                 assert.equal(res.status,400,'successful')
                 assert.isObject(res.body, 'an object is returned')

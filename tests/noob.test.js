@@ -1,11 +1,10 @@
-process.env.NODE_ENV='development'
-let server = "http://localhost:5000"
+let server =require('../server.js')
 //dev dependencies
 let chai = require('chai')
 let chaiHttp = require("chai-http")
 let assert = chai.assert
 chai.use(chaiHttp)
-let firstName="admin", lastName="admin", email="admin@gmail.com", country="USA", password = 'admin', currency="USD", amount="50"
+let firstName="admin", lastName="admin", email="johnagbanusi@gmail.com", country="USA", password = 'admin', currency="USD", amount="50"
 let token
 
 describe('test the backend',()=>{
