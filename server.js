@@ -19,6 +19,7 @@ sequelize.sync().then(()=>{
     app.listen(5000, ()=>{
         console.log("listening on port 5000")
     })
+    
 })
 
 module.exports = app
