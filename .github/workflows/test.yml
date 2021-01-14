@@ -37,6 +37,7 @@ jobs:
           node-version: 14.x
       - name: install
         run: npm ci
+      - name: install tester
         run: npm install mocha chai chai-http   
       - name: start and test the server
         run: npm run test
