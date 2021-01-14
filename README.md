@@ -1,4 +1,4 @@
-![Workflow file path](https://github.com/agbanusi/Funda-Wallet/.github/workflows/test.yml/badge.svg)
+![Workflow file path](https://github.com/agbanusi/Funda-Wallet/workflows/.github/workflows/test.yml/badge.svg)
 
 I used 
 - Postgresql database for concurrency and easy structure data
