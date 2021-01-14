@@ -7,7 +7,8 @@
     "start": "nodemon server.js",
     "build": "node server.js",
     "gen": "jsdoc server.js",
-    "test": "mocha ./tests/noob.test.js & mocha ./tests/admin.test.js"
+    "test": "mocha ./tests/noob.test.js & mocha ./tests/admin.test.js",
+    "tests":"npm run start && mocha ./tests/noob.test.js & mocha ./tests/admin.test.js"
   },
   "keywords": [],
   "author": "",

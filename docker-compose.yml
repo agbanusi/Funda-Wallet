@@ -14,7 +14,7 @@ services:
       API: ee8ac2a6c5f422607e6561bcf7a29efe
     ports:
       - "5000:5000"
-    command: npm run start
+    command: npm run tests
     volumes:
       - .:/app/
       - /app/node_modules
