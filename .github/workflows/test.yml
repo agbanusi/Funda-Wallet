@@ -36,8 +36,10 @@ jobs:
         with:
           node-version: 14.x
       - name: install
-        run: npm install
-        run: npm install mocha
+        run: npm ci
+        run: npm install mocha chai chai-http   
+      - name: start and test the server
+        run: npm run test
         env:
           POSTGRES: postgres://user:postgres@postgres:5432/db
           POSTGRES_PORT: 5432
@@ -45,6 +47,4 @@ jobs:
           NODE_ENV: production
           SECRET: HUBHUBHUB
           SECRETS: HUPHUTHYUTTYUN
-          API: 28965cf068f3c6098d00fff87fe38b40       
-      - name: start and test the server
-        run: npm run test
+          API: 28965cf068f3c6098d00fff87fe38b40
