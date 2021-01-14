@@ -155,22 +155,22 @@ describe('test the backend',()=>{
     })
 
     describe("Send money to users",()=>{
-        it("Verified user same currency", (done)=>{
+        it("Verified user different currency", (done)=>{
             chai.request(server)
             .post('/send')  
-            .send({token, amount, currency:"JPY", name:"Datebayo industries", email:"johnjohn@gmail.com"})
+            .send({token, amount, currency, name:"Datebayo industries", email:"johnjohn@gmail.com"})
             .end((err,res)=>{
-                assert.equal(res.status,200,'successful')
+                assert.equal(res.status,500,'unsuccessful due to api key')
                 assert.isObject(res.body, 'an object is returned')
                 done();
             })
         })
-        it("Verified user different currency", (done)=>{
+        it("Verified user same currency", (done)=>{
             chai.request(server)
             .post('/send')  
-            .send({token, amount, currency:"USD", name:"Datebayo industries", email:"johnjohnny@gmail.com"})
+            .send({token, amount, currency:"JPY", name:"Datebayo industries", email:"johnjohnny@gmail.com"})
             .end((err,res)=>{
-                assert.equal(res.status,500,'unsuccessful due to api key')
+                assert.equal(res.status,200,'successful')
                 assert.isObject(res.body, 'an object is returned')
                 done();
             })
