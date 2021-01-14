@@ -34,17 +34,16 @@ jobs:
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: 14.x
       - name: install
         run: npm install
       - name: start the server
-        run: npm run start
+        run: npm run build
         env:
           POSTGRES: postgres://user:postgres@postgres:5432/db
           POSTGRES_PORT: 5432
           POSTGRES_USER: user
-          NODE_ENV: development
-          PORT: 5000
+          NODE_ENV: production
           SECRET: HUBHUBHUB
           SECRETS: HUPHUTHYUTTYUN
           API: 28965cf068f3c6098d00fff87fe38b40
