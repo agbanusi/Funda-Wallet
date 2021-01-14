@@ -162,16 +162,19 @@ module.exports = function routes(app, User, Admin, Transactions){
         let {amount, currency, name} = req.body
         let email = req.user.email
 
-        if(amount, name, currency){
+        if(amount&& name&& currency){
             let user = await User.findOne({
                 where: {email}
             })
             user=user.dataValues
             if(user.level=="Noob"){
                 if(currency !== user.currency){
-                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
-                    let result = await res.json()
-                    console.log(result)
+                    let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                    let result = await red.json()
+                    if(!result.info){
+                        res.status(500).json({message: "An error occured in currency conversion"})
+                        return
+                    }
                     amount = result.info.rate
                 }
             }else{
@@ -179,8 +182,8 @@ module.exports = function routes(app, User, Admin, Transactions){
                     if(user.currency1 && currency !== user.currency1 ){
                         if(user.currency2 && currency !== user.currency2){
                             if(user.currency3 && currency !== user.currency3){
-                                let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
-                                let result = await res.json()
+                                let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                                let result = await red.json()
                                 amount = result.info.rate
                             }else{
                                 user.currency3 = currency
@@ -216,7 +219,7 @@ module.exports = function routes(app, User, Admin, Transactions){
         let mail = req.user.email
         let amount2 = amount
 
-        if(amount, name, currency){
+        if(amount&& name&& currency){
             let user = await User.findOne({
                 where: {email:mail}
             })
@@ -228,8 +231,8 @@ module.exports = function routes(app, User, Admin, Transactions){
 
             if(recipient.level == "Noob"){
                 if(recipient.currency !== user.currency){
-                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${user.currency}&to=${recipient.currency}&amount=${amount}`)
-                    let result = await res.json()
+                    let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${user.currency}&to=${recipient.currency}&amount=${amount}`)
+                    let result = await red.json()
                     amount2 = result.info.rate
                 }
             }else{
@@ -237,9 +240,14 @@ module.exports = function routes(app, User, Admin, Transactions){
                     if(recipient.currency1 && currency !== recipient.currency1 ){
                         if(recipient.currency2 && currency !== recipient.currency2){
                             if(recipient.currency3 && currency !== recipient.currency3){
-                                let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${recipient.currency}&amount=${amount}`)
-                                let result = await res.json()
+                                let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${recipient.currency}&amount=${amount}`)
+                                let result = await red.json()
+                                if(!result.info){
+                                    res.status(500).json({message: "An error occured in currency conversio "})
+                                    return
+                                }
                                 amount = result.info.rate
+                                
                             }else{
                                 recipient.currency3 = currency
                                 recipient.balance3 = "0.00"
@@ -345,9 +353,14 @@ module.exports = function routes(app, User, Admin, Transactions){
             if(user){
                 if(user.level == "Noob"){
                     if(currency && currency !== user.currency){
-                        let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
-                        let result = await res.json()
+                        let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                        let result = await red.json()
+                        if(!result.info){
+                            res.status(500).json({message: "An error occured in currency conversio "})
+                            return
+                        }
                         amount = result.info.rate
+                        
                     }
                 
                 }else{
@@ -355,8 +368,8 @@ module.exports = function routes(app, User, Admin, Transactions){
                         if(user.currency1 && currency !== user.currency1 ){
                             if(user.currency2 && currency !== user.currency2){
                                 if(user.currency3 && currency !== user.currency3){
-                                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
-                                    let result = await res.json()
+                                    let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                                    let result = await red.json()
                                     amount = result.info.rate
                                 }else{
                                     user.currency3 = currency
@@ -527,16 +540,21 @@ module.exports = function routes(app, User, Admin, Transactions){
     app.post('/directfund', verifyAdmin, async(req,res)=>{
         let {amount, currency, email} = req.body
 
-        if(amount, currency, email){
+        if(amount&& currency&& email){
             let user = await User.findOne({
                 where: {email}
             })
             user = user.dataValues
             if(user){
                 if(currency && currency !== user.currency){
-                    let res = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
-                    let result = await res.json()
+                    let red = await fetch(`http://data.fixer.io/api/convert?access_key=${process.env.API}&from=${currency}&to=${user.currency}&amount=${amount}`)
+                    let result = await red.json()
+                    if(!result.info){
+                        res.status(500).json({message: "An error occured in currency conversio "})
+                        return
+                    }
                     amount = result.info.rate
+                    
                 }
     
                 Transactions.create({userId: user.id, amount, credit:true, currency: currency | user.currency,

@@ -36,9 +36,9 @@ jobs:
         with:
           node-version: 12.x
       - name: install
-        run: npm ci
-      - name: connect to database and start the server
-        run: npm run build
+        run: npm install
+      - name: start the server
+        run: npm run start
         env:
           POSTGRES: postgres://user:postgres@postgres:5432/db
           POSTGRES_PORT: 5432
@@ -47,6 +47,6 @@ jobs:
           PORT: 5000
           SECRET: HUBHUBHUB
           SECRETS: HUPHUTHYUTTYUN
-          API: ee8ac2a6c5f422607e6561bcf7a29efe
+          API: 28965cf068f3c6098d00fff87fe38b40
       - name: start test
         run: npm run test

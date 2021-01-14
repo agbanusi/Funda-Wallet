@@ -188,27 +188,4 @@ describe('test the backend',()=>{
         
     })
 
-    describe("List pending transactions",()=>{
-        it("Verified admin", (done)=>{
-            chai.request(server)
-            .post('/listtransactions/pending')  
-            .send({token})
-            .end((err,res)=>{
-                assert.equal(res.status,200,'successful')
-                assert.isObject(res.body, 'an object is returned')
-                done();
-            })
-        })
-        it("Unverified admin", (done)=>{
-            chai.request(server)
-            .post('/listtransactions/pening')  
-            .send({token})
-            .end((err,res)=>{
-                assert.equal(res.status,400,'successful')
-                assert.isObject(res.body, 'an object is returned')
-                done();
-            })
-        })
-    })
-
 })
