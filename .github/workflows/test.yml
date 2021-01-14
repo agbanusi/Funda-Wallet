@@ -1,0 +1,15 @@
+name: test-integration
+on: [push]
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: use node v10
+        uses: actions/setup-node@v10
+        with: 
+          node-version: 10.x
+      - name: install
+        run: npm install
+      - name: start test
+        run: docker-compose up --exit-code-from app

@@ -6,7 +6,7 @@ services:
     depends_on:
       - postgres
     environment:
-      POSTGRES: postgres://user:pass@postgres:5432/db
+      POSTGRES: postgres://user:postgres@postgres:5432/db
       NODE_ENV: development
       PORT: 5000
       SECRET: HUBHUBHUB
@@ -25,5 +25,6 @@ services:
       - "35432:5432"
     environment:
       POSTGRES_USER: user
+      POSTGRES_HOST: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: db
