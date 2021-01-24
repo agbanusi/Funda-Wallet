@@ -1,4 +1,4 @@
-# Documentation
+# Documentation for Funda-Wallet
 
 - POST '/register'
   Requirement: 

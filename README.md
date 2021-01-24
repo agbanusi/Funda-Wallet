@@ -34,6 +34,7 @@ To run on docker with the docker-compose:
 - run ```docker-compose up```
 
 - Go to http://localhost:5000/
-NB. Youi need docker-compose installed
+
+NB. You need docker-compose installed
 
 ## Test link is at https://delicious-caramel-paprika.glitch.me
